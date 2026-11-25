@@ -14,6 +14,13 @@
     <button v-if="showResponse" @click="retrieveUser()">Retrieve user {{user.id}} data from database</button>
 
     <h4 v-if="showRetrievedUser">Retrieved User {{retrievedUser.firstName}} {{retrievedUser.lastName}}</h4>
+
+    <div style="margin-top: 16px;">
+      <button @click="loadAllUsers()">Load All Users</button>
+      <ul v-if="users.length > 0">
+        <li v-for="u in users" :key="u.id">{{ u.id }}: {{ u.firstName }} {{ u.lastName }}</li>
+      </ul>
+    </div>
   </div>
 </template>
 
@@ -22,17 +29,16 @@ import { defineComponent } from 'vue';
 import api from "../api/backend-api";
 import {AxiosError} from "axios";
 
+interface UserItem {
+  id: number;
+  firstName: string;
+  lastName: string;
+}
+
 interface State {
-  user: {
-    id: number
-    firstName: string,
-    lastName: string;
-  };
-  retrievedUser: {
-    id: number
-    firstName: string,
-    lastName: string;
-  };
+  user: UserItem;
+  retrievedUser: UserItem;
+  users: UserItem[];
   showResponse: boolean;
   showRetrievedUser: boolean;
   errors: AxiosError[]
@@ -55,6 +61,7 @@ export default defineComponent({
         firstName: '',
         lastName: ''
       },
+      users: [],
       showRetrievedUser: false
     }
   },
@@ -76,6 +83,14 @@ export default defineComponent({
           // JSON responses are automatically parsed.
           this.retrievedUser = response.data;
           this.showRetrievedUser = true
+        })
+        .catch((error: AxiosError):void => {
+          this.errors.push(error)
+        })
+    },
+    loadAllUsers () {
+      api.getUsers().then(response => {
+          this.users = response.data;
         })
         .catch((error: AxiosError):void => {
           this.errors.push(error)

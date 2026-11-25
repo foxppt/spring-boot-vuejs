@@ -13,6 +13,8 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 
 @SpringBootTest(
@@ -69,6 +71,26 @@ public class BackendControllerTest {
         assertThat(responseUser.getFirstName(), is("Norbert"));
         assertThat(responseUser.getLastName(), is("Siegmund"));
     }
+
+	@Test
+	public void users_api_should_return_created_users() {
+		given()
+			.pathParam("firstName", "Ada")
+			.pathParam("lastName", "Lovelace")
+		.when()
+			.post("/api/user/{lastName}/{firstName}")
+		.then()
+			.statusCode(is(HttpStatus.SC_CREATED));
+
+		when()
+			.get("/api/users")
+		.then()
+			.statusCode(HttpStatus.SC_OK)
+			.assertThat()
+				.body("size()", greaterThanOrEqualTo(1))
+				.body("firstName", hasItem("Ada"))
+				.body("lastName", hasItem("Lovelace"));
+	}
 
 	@Test
 	public void user_api_should_give_http_404_not_found_when_user_not_present_in_db() {
