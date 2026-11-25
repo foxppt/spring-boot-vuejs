@@ -56,4 +56,10 @@ public class BackendController {
         LOG.info("GET successfully called on /secured resource");
         return SECURED_TEXT;
     }
+
+    @ResponseBody
+    @GetMapping(path = "/ping")
+    public String ping() {
+        return "pong";
+    }
 }
