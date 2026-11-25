@@ -1,7 +1,7 @@
 import axios, {AxiosResponse} from 'axios'
 
 const axiosApi = axios.create({
-    baseURL: `/api`,
+    baseURL: process.env.NODE_ENV === 'production' ? '/backend/api' : '/api',
     timeout: 1000,
     headers: { 'Content-Type': 'application/json' }
 });
@@ -19,8 +19,11 @@ export default {
     getUser(userId: number): Promise<AxiosResponse<User>> {
         return axiosApi.get(`/user/` + userId);
     },
+    getUsers(): Promise<AxiosResponse<User[]>> {
+        return axiosApi.get(`/users`);
+    },
     createUser(firstName: string, lastName: string): Promise<AxiosResponse<number>> {
-        return axiosApi.post(`/user/` + firstName + '/' + lastName);
+        return axiosApi.post(`/user/` + encodeURIComponent(lastName) + '/' + encodeURIComponent(firstName));
     },
     getSecured(user: string, password: string): Promise<AxiosResponse<string>> {
         return axiosApi.get(`/secured/`,{
@@ -30,5 +33,3 @@ export default {
             }});
     }
 }
-
-
