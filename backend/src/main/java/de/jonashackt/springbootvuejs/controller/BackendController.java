@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Controller
 @RequestMapping("/api")
 public class BackendController {
@@ -48,6 +50,13 @@ public class BackendController {
             LOG.info("Reading user with id " + id + " from database.");
             return user;
         }).orElseThrow(() -> new UserNotFoundException("The user with the id " + id + " couldn't be found in the database."));
+    }
+
+    @ResponseBody
+    @GetMapping(path = "/users/search")
+    public List<User> searchUsersByLastName(@RequestParam("lastName") String lastName) {
+        LOG.info("Searching users by lastName=" + lastName);
+        return userRepository.findByLastName(lastName);
     }
 
     @ResponseBody

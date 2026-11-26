@@ -13,6 +13,7 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 
 @SpringBootTest(
@@ -68,6 +69,27 @@ public class BackendControllerTest {
 	    // Did Norbert came back?
         assertThat(responseUser.getFirstName(), is("Norbert"));
         assertThat(responseUser.getLastName(), is("Siegmund"));
+    }
+
+    @Test
+    public void search_users_by_last_name_returns_matching_users() {
+        given()
+            .pathParam("firstName", "Grace")
+            .pathParam("lastName", "Hopper")
+        .when()
+            .post("/api/user/{lastName}/{firstName}")
+        .then()
+            .statusCode(is(HttpStatus.SC_CREATED));
+
+        given()
+            .queryParam("lastName", "Hopper")
+        .when()
+            .get("/api/users/search")
+        .then()
+            .statusCode(HttpStatus.SC_OK)
+            .assertThat()
+                .body("firstName", hasItem("Grace"))
+                .body("lastName", hasItem("Hopper"));
     }
 
 	@Test
